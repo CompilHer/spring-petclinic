@@ -31,7 +31,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('SonarQube Analysis') {
             environment {
                 SCANNER_HOME = tool 'SonarQubeScanner'
@@ -39,7 +39,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     sh '''
-                    ./mvnw sonar:sonar \
+                    ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
                       -Dsonar.projectKey=petclinic \
                       -Dsonar.projectName=petclinic \
                       -Dsonar.java.binaries=target/classes
