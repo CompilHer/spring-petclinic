@@ -69,14 +69,14 @@ pipeline {
                 echo 'Deploying application to K3s cluster...'
                 withCredentials([file(credentialsId: 'k8s-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    # Download kubectl directly to the workspace to avoid sudo permissions
-                    if [ ! -f "./kubectl" ]; then
-                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                        chmod +x ./kubectl
+                    # Download kubectl to /tmp to keep the workspace clean from Maven scanners
+                    if [ ! -f "/tmp/kubectl" ]; then
+                        curl -L "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" -o /tmp/kubectl
+                        chmod +x /tmp/kubectl
                     fi
                 
-                    # Apply the Kubernetes manifests using the local binary
-                    ./kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
+                    # Apply the Kubernetes manifests
+                    /tmp/kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
                     '''
                 }
             }
