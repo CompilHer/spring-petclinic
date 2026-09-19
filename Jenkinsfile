@@ -2,7 +2,6 @@ pipeline {
     agent any
     
     tools {
-        // These names must match what we configure in Jenkins later
         maven 'Maven 3'
         jdk 'Java 17'
     }
@@ -31,7 +30,7 @@ pipeline {
                 }
             }
         }
-
+        
         stage('SonarQube Analysis') {
             environment {
                 SCANNER_HOME = tool 'SonarQubeScanner'
@@ -64,7 +63,22 @@ pipeline {
                 sh 'docker push ${IMAGE_NAME}:latest'
             }
         }
-        
-        // The Kubernetes Deployment stage will be added later once EKS is provisioned
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Deploying application to K3s cluster...'
+                withCredentials([file(credentialsId: 'k8s-kubeconfig', variable: 'KUBECONFIG')]) {
+                    sh '''
+                    if ! command -v kubectl &> /dev/null; then
+                        curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+                        chmod +x kubectl
+                        sudo mv kubectl /usr/local/bin/
+                    fi
+                
+                    kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
+                    '''
+                }
+            }
+        }
     }
 }
