@@ -69,13 +69,14 @@ pipeline {
                 echo 'Deploying application to K3s cluster...'
                 withCredentials([file(credentialsId: 'k8s-kubeconfig', variable: 'KUBECONFIG')]) {
                     sh '''
-                    if ! command -v kubectl &> /dev/null; then
+                    # Download kubectl directly to the workspace to avoid sudo permissions
+                    if [ ! -f "./kubectl" ]; then
                         curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                        chmod +x kubectl
-                        sudo mv kubectl /usr/local/bin/
+                        chmod +x ./kubectl
                     fi
                 
-                    kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
+                    # Apply the Kubernetes manifests using the local binary
+                    ./kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
                     '''
                 }
             }
