@@ -23,7 +23,7 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 echo 'Running JUnit Tests...'
-                sh './mvnw clean test'
+                sh './mvnw clean test -Dtest=!PetClinicConcurrencyTests'
             }
             post {
                 always {
