@@ -76,7 +76,7 @@ pipeline {
                     fi
                 
                     # Apply the Kubernetes manifests
-                    /tmp/kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml
+                    /tmp/kubectl --kubeconfig=$KUBECONFIG apply -f k8s-deploy.yaml --insecure-skip-tls-verify=true
                     '''
                 }
             }
