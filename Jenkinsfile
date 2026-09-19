@@ -64,6 +64,17 @@ pipeline {
             }
         }
 
+        stage('Selenium UI Test') {
+            steps {
+                sh '''
+                python3 -m venv venv
+                . venv/bin/activate
+                pip install selenium
+                python3 selenium_test.py
+                '''
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Deploying application to K3s cluster...'
